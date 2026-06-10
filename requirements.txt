@@ -9,3 +9,4 @@ scikit-learn==1.5.1
 groq
 
 streamlit==1.36.0
+pillow==11.2.1
