@@ -1,8 +1,8 @@
 import os
 import requests
 import streamlit as st
-from groq import Groq
 
+from page.chatbot_2 import MovieChatApp
 # =============================
 # CONFIG
 # =============================
@@ -367,65 +367,5 @@ elif st.session_state.view == "details":
 # VIEW: CHATBOT  ← THÊM MỚI
 # ==========================================================
 elif st.session_state.view == "chatbot":
-
-    # Back button
-    if st.button("← Back to Home"):
-        goto_home()
-
-    st.markdown("### 🤖 Movie Chatbot")
-    st.caption("Hỏi tôi bất cứ điều gì về phim!")
-    st.divider()
-
-    # Groq client
-    try:
-        client = Groq(api_key=st.secrets["GROQ_API_KEY"])
-    except Exception:
-        st.error("⚠️ Chưa có GROQ_API_KEY trong secrets.toml!")
-        st.code("""
-# .streamlit/secrets.toml
-GROQ_API_KEY = "gsk_..."
-        """)
-        st.stop()
-
-    # Hiện lịch sử chat
-    for msg in st.session_state.messages:
-        with st.chat_message(msg["role"]):
-            st.markdown(msg["content"])
-
-    # Nhận input
-    if prompt := st.chat_input("Bạn muốn xem phim gì hôm nay?"):
-
-        st.session_state.messages.append({"role": "user", "content": prompt})
-        with st.chat_message("user"):
-            st.markdown(prompt)
-
-        with st.chat_message("assistant"):
-            with st.spinner("Đang tìm phim..."):
-                res = client.chat.completions.create(
-                    model=os.getenv("GROQ_MODEL", "groq/compound"),
-                    messages=[
-                        {
-                            "role": "system",
-                            "content": """Bạn là trợ lý gợi ý phim thông minh và thân thiện.
-Khi user hỏi về phim hãy:
-1. Gợi ý 3-5 phim phù hợp với yêu cầu
-2. Giải thích ngắn tại sao mỗi phim phù hợp
-3. Nếu câu hỏi mơ hồ → hỏi thêm 1 câu về thể loại hoặc sở thích
-Trả lời bằng tiếng Việt, ngắn gọn và thân thiện.""",
-                        },
-                        *[
-                            {"role": m["role"], "content": m["content"]}
-                            for m in st.session_state.messages
-                        ],
-                    ],
-                )
-                reply = res.choices[0].message.content
-                st.markdown(reply)
-
-        st.session_state.messages.append({"role": "assistant", "content": reply})
-
-    # Nút xóa chat
-    if st.session_state.messages:
-        if st.button("🗑️ Xóa lịch sử chat"):
-            st.session_state.messages = []
-            st.rerun()
+    app = MovieChatApp()
+    app.run()
