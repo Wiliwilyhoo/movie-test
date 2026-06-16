@@ -1,3 +1,5 @@
+from typing import Dict
+
 import os
 import requests
 import streamlit as st
